@@ -1,6 +1,6 @@
 ### CURRENT USAGE: python images_to_pdf.py output.pdf first_image second_image third_image ....
 ### e.g. python images_to_pdf.py sub-000000_MoCA.pdf 1.jpg second.png 3rd_page.jpg 
-### This script will create a single pdf out of all images provided, in order of appearance in the list.
+### This script will create a single pdf out of all images provided, in order of appearance in the user-provided list.
 
 import sys
 from PIL import Image
