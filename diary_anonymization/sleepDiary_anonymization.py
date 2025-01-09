@@ -8,7 +8,7 @@ if len(sys.argv) < 2:
 
 input_file = sys.argv[1]
 participant_id = sys.argv[2]
-output_file = f"{participant_id}_sleepDiary.tsv"
+output_file = f"{participant_id}_sleepDiary.csv"
 
 # Column indices to extract from the input CSV and their corresponding headers
 columns_to_extract = {
