@@ -2,18 +2,24 @@ import csv
 import sys
 
 # Ensure the script has the necessary command-line arguments
-if len(sys.argv) < 3:
-    print("Usage: python sleepDiary_anonymization.py <input_csv> <email_id_csv> <output_csv>")
+if len(sys.argv) < 2:
+    print("Usage: python /path/to/sleepDiary_anonymization.py </path/to/input_non-anonymized_sleep_diary_csv> <participant_ID>")
     sys.exit(1)
 
 input_file = sys.argv[1]
-email_id_file = sys.argv[2]
-output_file = sys.argv[3]
+participant_id = sys.argv[2]
+output_file = f"{participant_id}_sleepDiary.tsv"
 
 # Column indices to extract from the input CSV and their corresponding headers
 columns_to_extract = {
-    12: "email",  # This will be replaced by true_participant_ID in the output
-    18: "participant_ID",
+    1: "start_time",
+    2: "end_time",
+    5: "progress",
+    6: "duration",
+    7: "finished",
+    8: "record_time",
+    #12: "email",  # This will be replaced by true_participant_ID in the output
+    18: "participant-recorded_participant_ID",
     19: "lights_off",
     20: "lights_on",
     21: "time_tried_to_fall_asleep",
@@ -49,15 +55,6 @@ columns_to_extract = {
 }
 
 try:
-    # Load the email to participant_id mapping from the second CSV
-    email_to_participant_id = {}
-    with open(email_id_file, mode="r", newline="", encoding="utf-8") as email_file:
-        reader = csv.reader(email_file)
-        next(reader)  # Skip the header
-        for row in reader:
-            email = row[1].strip()
-            participant_id = row[2].strip()
-            email_to_participant_id[email] = participant_id
 
     # Process the input CSV and write the output
     with open(input_file, mode="r", newline="", encoding="utf-8") as infile, \
@@ -68,7 +65,7 @@ try:
 
         # Replace "email" header with "true_participant_ID" in the output
         output_headers = list(columns_to_extract.values())
-        output_headers[0] = "true_participant_ID"
+        output_headers[0] = "participant_ID"
         writer.writerow(output_headers)
 
         # Skip the first 3 rows
@@ -77,9 +74,8 @@ try:
 
         # Write filtered and deanonymized rows
         for row in reader:
-            email = row[11].strip()
-            true_participant_id = email_to_participant_id.get(email, "UNKNOWN")
-            filtered_row = [true_participant_id if index == 12 else row[index-1] for index in columns_to_extract.keys()]
+            filtered_row = [participant_id] + [row[index - 1] for index in columns_to_extract.keys()]
+            #filtered_row = [participant_id, row[index-1] for index in columns_to_extract.keys()]
             writer.writerow(filtered_row)
 
     print(f"Deanonymized CSV saved as {output_file}")
