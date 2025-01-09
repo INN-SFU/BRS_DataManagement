@@ -65,7 +65,7 @@ try:
 
         # Replace "email" header with "true_participant_ID" in the output
         output_headers = list(columns_to_extract.values())
-        output_headers[0] = "participant_ID"
+        output_headers = ["participant_ID"]+output_headers
         writer.writerow(output_headers)
 
         # Skip the first 3 rows
