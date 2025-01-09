@@ -75,7 +75,7 @@ try:
         # Write filtered and deanonymized rows
         for row in reader:
             filtered_row = [participant_id] + [row[index - 1] for index in columns_to_extract.keys()]
-            if participant_id != row[17]:
+            if participant_id != row[17][4:]:
                 print(f"WARNING: Participant has filled out incorrect participant ID. Participant-provided: {row[17]}. User-specified: {participant_id}. Manual inspection recommended.")
             #filtered_row = [participant_id, row[index-1] for index in columns_to_extract.keys()]
             writer.writerow(filtered_row)
