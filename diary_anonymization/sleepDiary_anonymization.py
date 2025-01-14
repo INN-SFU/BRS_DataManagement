@@ -2,7 +2,7 @@ import csv
 import sys
 
 # Ensure the script has the necessary command-line arguments
-if len(sys.argv) < 2:
+if len(sys.argv) < 3:
     print("Usage: python /path/to/sleepDiary_anonymization.py </path/to/input_non-anonymized_sleep_diary_csv> <participant_ID>")
     sys.exit(1)
 
