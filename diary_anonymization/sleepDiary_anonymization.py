@@ -65,7 +65,7 @@ try:
 
         # Replace "email" header with "true_participant_ID" in the output
         output_headers = list(columns_to_extract.values())
-        output_headers = ["participant_ID"]+output_headers
+        output_headers = ["participant_ID"] + output_headers + ["qualtrics_or_transcribed"]
         writer.writerow(output_headers)
 
         # Skip the first 3 rows
@@ -74,7 +74,7 @@ try:
 
         # Write filtered and deanonymized rows
         for row in reader:
-            filtered_row = [participant_id] + [row[index - 1] for index in columns_to_extract.keys()]
+            filtered_row = [participant_id] + [row[index - 1] for index in columns_to_extract.keys()] + ["qualtrics"]
             if participant_id[4:] != row[17]:
                 print(f"WARNING: Participant has filled out incorrect participant ID. Participant-provided: {row[17]}. User-specified: {participant_id[4:]}. Manual inspection recommended.")
             #filtered_row = [participant_id, row[index-1] for index in columns_to_extract.keys()]
