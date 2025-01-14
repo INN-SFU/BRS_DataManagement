@@ -12,6 +12,6 @@ This command will generate `<participant_ID>_sleepDiary.csv` in your current wor
 This script creates an additional "qualtrics_or_transcribed" column to a csv, with value "qualtrics" for each row. This intended for use with older anonymized CSV files (from qualtrics) for a **single participant** and overwrites the input CSV (which is an ouput of an older version of the sleepDiary_anonymization.py script). No other data in the file is altered. **Be sure to test this script on copies of input files before overwriting** 
 
 Usage:
-`python /path/to/sleepDiary_anonymization.py /path/to/example_non-anonymized_diary.csv participant_ID`
+`python /path/to/append_column_to_qualtrics_diary.py /path/to/example_anonymized_diary.csv`
 
-This command will generate `<participant_ID>_sleepDiary.csv` in your current working directory (the directory you run the python command from).
+This command will overwrite the anonymized sleep diary.
