@@ -15,7 +15,7 @@ try:
     if rows:
         rows[0].append("qualtrics_or_transcribed")  # Add the new column header
         for row in rows[1:]:
-            row.append("transcribed")  # Add the value "transcribed" to each data row
+            row.append("qualtrics")  # Add the value "transcribed" to each data row
 
     with open(input_file, mode="w", newline="", encoding="utf-8") as outfile:
         writer = csv.writer(outfile)
