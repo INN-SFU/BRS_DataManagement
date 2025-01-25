@@ -54,6 +54,20 @@ columns_to_extract = {
     50: "comments",
 }
 
+
+def format_time(time_str):
+    # Convert to uppercase
+    time_str = time_str.upper()
+    
+    # Add space between time and AM/PM if necessary
+    time_str = re.sub(r'(\d{2}:\d{2})(AM|PM)', r'\1 \2', time_str)
+    
+    # Remove leading zero from HH if present
+    time_str = re.sub(r'^0(\d:\d{2} [AP]M)', r'\1', time_str)
+    
+    return time_str
+
+
 try:
 
     # Process the input CSV and write the output
@@ -78,6 +92,21 @@ try:
             if participant_id[4:] != row[17]:
                 print(f"WARNING: Participant has filled out incorrect participant ID. Participant-provided: {row[17]}. User-specified: {participant_id[4:]}. Manual inspection recommended.")
             #filtered_row = [participant_id, row[index-1] for index in columns_to_extract.keys()]
+
+             # Transform the "medication" column
+            medication_index = list(columns_to_extract.keys()).index(44) + 1  # +1 because of the added participant_ID column
+            if filtered_row[medication_index].startswith("Yes"):
+                filtered_row[medication_index] = "Yes"
+            elif filtered_row[medication_index].startswith("Decline"):
+                filtered_row[medication_index] = "Decline"
+            
+            # Transform time-related columns
+            time_columns = [19, 20, 21, 23, 27, 29, 31, 33, 40, 41, 42, 43, 48, 49]
+            for col in time_columns:
+                col_index = list(columns_to_extract.keys()).index(col) + 1  # +1 because of the added participant_ID column
+                if filtered_row[col_index]:
+                    filtered_row[col_index] = format_time(filtered_row[col_index])
+
             writer.writerow(filtered_row)
 
     print(f"Deanonymized CSV saved as {output_file}")
