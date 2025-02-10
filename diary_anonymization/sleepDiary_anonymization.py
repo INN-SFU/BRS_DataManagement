@@ -3,14 +3,14 @@ import sys
 
 # Ensure the script has the necessary command-line arguments
 if len(sys.argv) < 3:
-    print("Usage: python /path/to/sleepDiary_anonymization.py </path/to/input_non-anonymized_sleep_diary_csv> <participant_ID>")
+    print("Usage: python /path/to/sleepDiary_anonymization.py </path/to/input_non-anonymized_sleep_diary_tsv> <participant_ID>")
     sys.exit(1)
 
 input_file = sys.argv[1]
 participant_id = sys.argv[2]
-output_file = f"{participant_id}_sleepDiary.csv"
+output_file = f"{participant_id}_sleepDiary.tsv"
 
-# Column indices to extract from the input CSV and their corresponding headers
+# Column indices to extract from the input TSV and their corresponding headers
 columns_to_extract = {
     1: "start_time",
     2: "end_time",
@@ -70,12 +70,12 @@ def format_time(time_str):
 
 try:
 
-    # Process the input CSV and write the output
+    # Process the input TSV and write the output
     with open(input_file, mode="r", newline="", encoding="utf-8") as infile, \
          open(output_file, mode="w", newline="", encoding="utf-8") as outfile:
 
-        reader = csv.reader(infile)
-        writer = csv.writer(outfile)
+        reader = csv.reader(infile, delimiter='\t')
+        writer = csv.writer(outfile, delimiter='\t')
 
         # Replace "email" header with "true_participant_ID" in the output
         output_headers = list(columns_to_extract.values())
@@ -109,7 +109,7 @@ try:
 
             writer.writerow(filtered_row)
 
-    print(f"Deanonymized CSV saved as {output_file}")
+    print(f"Deanonymized TSV saved as {output_file}")
 
 except Exception as e:
     print(f"An error occurred: {e}")
