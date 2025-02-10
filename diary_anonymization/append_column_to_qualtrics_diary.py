@@ -2,14 +2,14 @@ import csv
 import sys
 
 if len(sys.argv) < 2:
-    print("Usage: python /path/to/script.py </path/to/input_csv>")
+    print("Usage: python /path/to/script.py </path/to/input_tsv>")
     sys.exit(1)
 
 input_file = sys.argv[1]
 
 try:
     with open(input_file, mode="r", newline="", encoding="utf-8") as infile:
-        reader = csv.reader(infile)
+        reader = csv.reader(infile, delimiter="\t")
         rows = list(reader)  # Read all rows into a list
 
     if rows:
@@ -18,7 +18,7 @@ try:
             row.append("qualtrics")  # Add the value "transcribed" to each data row
 
     with open(input_file, mode="w", newline="", encoding="utf-8") as outfile:
-        writer = csv.writer(outfile)
+        writer = csv.writer(outfile, delimiter="\t")
         writer.writerows(rows)  # Write all rows back to the file
 
     print(f"Column 'qualtrics_or_transcribed' added with value 'transcribed' for all rows in {input_file}.")
