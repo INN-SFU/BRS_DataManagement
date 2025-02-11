@@ -1,0 +1,4 @@
+- max file limit for rsync with a certain flag (group <USER>) – <error message here>
+- Path errors to projects (not replacing tilde) – <error message here>
+- Permissions setting for shared files in projects – <error message here>
+- Permissions denied and what they mean, and how to resolve them <error message here>
