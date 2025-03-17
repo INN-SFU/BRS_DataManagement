@@ -1,6 +1,35 @@
 import sys
 import pandas as pd
 import os
+import argparse
+
+# Set up argument parser
+parser = argparse.ArgumentParser(
+    description="Check the existence of various data files for BRS study"
+)
+
+# Define command-line arguments
+parser.add_argument(
+    "date_completeness", help="The date for the data completeness file (YYYY-MM-DD)."
+)
+parser.add_argument(
+    "date_cantab", help="The date for the CANTAB summary file (YYYY-MM-DD)."
+)
+parser.add_argument(
+    "date_psqi", help="The date for the PSQI summary file (YYYY-MM-DD)."
+)
+parser.add_argument(
+    "date_moca", help="The date for the MoCA summary file (YYYY-MM-DD)."
+)
+
+# Parse arguments
+args = parser.parse_args()
+
+# Assign arguments to variables
+desired_date_completeness = args.date_completeness
+desired_date_cantab = args.date_cantab
+desired_date_psqi = args.date_psqi
+desired_date_moca = args.date_moca
 
 desired_date_completeness = sys.argv[1]
 desired_date_cantab = sys.argv[2]
@@ -8,11 +37,11 @@ desired_date_psqi = sys.argv[3]
 desired_date_moca = sys.argv[4]
 
 # Load the CSV file into a DataFrame
-file_name = f'/home/ethanmcn/projects/ctb-rmcintos/globus-share/BRS/staging/data_completeness_date-{desired_date_completeness}.tsv'  # Replace this with the actual filename format
+file_name = f'~/projects/ctb-rmcintos/globus-share/BRS/staging/data_completeness_date-{desired_date_completeness}.tsv'  # Replace this with the actual filename format
 df = pd.read_csv(file_name, sep='\t', header=0, encoding='latin1')
 
 # Directory where the test files are stored
-base_directory = '/home/ethanmcn/projects/ctb-rmcintos/globus-share/BRS/staging'
+base_directory = '~/projects/ctb-rmcintos/globus-share/BRS/staging'
 
 # Function to check if the file exists for each file type
 def check_file_existence(participant_id, file_type):
