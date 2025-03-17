@@ -5,21 +5,21 @@ import argparse
 
 # Set up argument parser
 parser = argparse.ArgumentParser(
-    description="Check the existence of various data files for BRS study"
+    description="Check the existence of various data files for BRS study."
 )
 
 # Define command-line arguments
 parser.add_argument(
-    "date_completeness", help="The date for the data completeness file (YYYY-MM-DD)."
+    "date_completeness", help="The date for the data completeness file (YYYYMMDD)."
 )
 parser.add_argument(
-    "date_cantab", help="The date for the CANTAB summary file (YYYY-MM-DD)."
+    "date_cantab", help="The date for the CANTAB summary file (YYYYMMDD)."
 )
 parser.add_argument(
-    "date_psqi", help="The date for the PSQI summary file (YYYY-MM-DD)."
+    "date_psqi", help="The date for the PSQI summary file (YYYYMMDD)."
 )
 parser.add_argument(
-    "date_moca", help="The date for the MoCA summary file (YYYY-MM-DD)."
+    "date_moca", help="The date for the MoCA summary file (YYYYMMDD)."
 )
 
 # Parse arguments
@@ -30,11 +30,6 @@ desired_date_completeness = args.date_completeness
 desired_date_cantab = args.date_cantab
 desired_date_psqi = args.date_psqi
 desired_date_moca = args.date_moca
-
-desired_date_completeness = sys.argv[1]
-desired_date_cantab = sys.argv[2]
-desired_date_psqi = sys.argv[3]
-desired_date_moca = sys.argv[4]
 
 # Load the CSV file into a DataFrame
 file_name = f'~/projects/ctb-rmcintos/globus-share/BRS/staging/data_completeness_date-{desired_date_completeness}.tsv'  # Replace this with the actual filename format
