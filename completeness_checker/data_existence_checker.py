@@ -2,6 +2,7 @@ import sys
 import pandas as pd
 import os
 import argparse
+import re
 
 # Set up argument parser
 parser = argparse.ArgumentParser(
@@ -40,6 +41,7 @@ base_directory = "~/projects/ctb-rmcintos/globus-share/BRS/staging"
 
 # Function to check if the file exists for each file type
 def check_file_existence(participant_id, file_type):
+    flag = 1
     # Remove the prefix based on the file type
     if file_type == "CANTAB":
         # Remove the full "sub-BRS" prefix for CANTAB
@@ -98,13 +100,28 @@ def check_file_existence(participant_id, file_type):
         file_name = f"{participant_id}/eeg/{participant_id}_task-rest_eeg.edf"
         file_path = os.path.join(base_directory, file_name)
     elif file_type == "Actigraphy-data":
-        file_name = f"{participant_id}/sleep/actigraphy/{participant_id}_watchID-\d{{6}}_actigraphy.txt"
-        file_path = os.path.join(base_directory, file_name)
+        dir_path = os.path.join(base_directory, f"{participant_id}/sleep/actigraphy")
+        pattern = re.compile(rf"{participant_id}_watchID-\d{{6}}_{'actigraphy' if file_type == 'Actigraphy-data' else 'metadata'}.txt")
+        flag = 0
+        if os.path.exists(os.path.expanduser(dir_path)):
+            for file in os.listdir(os.path.expanduser(dir_path)):
+                if pattern.fullmatch(file):
+                    file_path = os.path.join(dir_path, file)
+                    flag = 1
     elif file_type == "Actigraphy-metadata":
-        file_name = f"{participant_id}/sleep/actigraphy/{participant_id}_watchID-\d{{6}}_metadata.txt"
-        file_path = os.path.join(base_directory, file_name)
-    
-    return os.path.exists(os.path.expanduser(file_path))
+        dir_path = os.path.join(base_directory, f"{participant_id}/sleep/actigraphy")
+        pattern = re.compile(rf"{participant_id}_watchID-\d{{6}}_{'actigraphy' if file_type == 'Actigraphy-data' else 'metadata'}.txt")
+        flag = 0
+        if os.path.exists(os.path.expanduser(dir_path)):
+            for file in os.listdir(os.path.expanduser(dir_path)):
+                if pattern.fullmatch(file):
+                    file_path = os.path.join(dir_path, file)
+                    flag = 1
+    if flag == 0: 
+        return False
+    else:    
+
+        return os.path.exists(os.path.expanduser(file_path))
 
 # Iterate through each row (participant)
 for index, row in df.iterrows():
@@ -115,61 +132,61 @@ for index, row in df.iterrows():
         file_exists = check_file_existence(participant_id, "MST")
         if not file_exists:
             print(f"Warning: mst.txt for {participant_id} not found!")
-        else:
-            print(f"mst.txt for {participant_id} exists.")
+        #else:
+         #   print(f"mst.txt for {participant_id} exists.")
     
     if row['CANTAB'] == 1:  # Column 4 corresponds to desc-summary_CANTAB.tsv
         file_exists = check_file_existence(participant_id, "CANTAB")
         if not file_exists:
             print(f"Warning: CANTAB entry for {participant_id} not found!")
-        else:
-            print(f"CANTAB entry for {participant_id} exists.")
+       # else:
+         #   print(f"CANTAB entry for {participant_id} exists.")
     
     if row['MoCA'] == 1:  # Column 5 corresponds to desc-summary_MoCA.tsv
         file_exists = check_file_existence(participant_id, "MoCA")
         if not file_exists:
             print(f"Warning: MoCA entry for {participant_id} not found!")
-        else:
-            print(f"MoCA entry for {participant_id} exists.")
+       # else:
+        #    print(f"MoCA entry for {participant_id} exists.")
     
     if row['PSQI'] == 1:  # Column 6 corresponds to desc-summary_PSQI.tsv
         file_exists = check_file_existence(participant_id, "PSQI")
         if not file_exists:
             print(f"Warning: PSQI entry for {participant_id} not found!")
-        else:
-            print(f"PSQI entry for {participant_id} exists.")
+        #else:
+         #   print(f"PSQI entry for {participant_id} exists.")
     
     if row['SleepDiary'] == 1:  # Column 7 corresponds to sleepDiary.tsv
         file_exists = check_file_existence(participant_id, "SleepDiary")
         if not file_exists:
             print(f"Warning: Sleep Diary for {participant_id} not found!")
-        else:
-            print(f"sleepDiary for {participant_id} exists.")
+        #else:
+          #  print(f"sleepDiary for {participant_id} exists.")
 
     if row['Actigraphy'] == 1:  # Column 8 corresponds to actigraphy.txt
         file_exists = check_file_existence(participant_id, "Actigraphy-data")
         if not file_exists:
             print(f"Warning: Actigraphy-data for {participant_id} not found!")
-        else:
-            print(f"Actigraphy-data for {participant_id} exists.")
+        #else:
+         #   print(f"Actigraphy-data for {participant_id} exists.")
 
     if row['Actigraphy'] == 1:  # Column 8 corresponds to actigraphy-metadata.txt
         file_exists = check_file_existence(participant_id, "Actigraphy-data")
         if not file_exists:
             print(f"Warning: Actigraphy-metadata for {participant_id} not found!")
-        else:
-            print(f"Actigraphy-metadata for {participant_id} exists.")
+       # else:
+          #  print(f"Actigraphy-metadata for {participant_id} exists.")
     
     if row['MuseEEG'] == 1:  # Column  corresponds to task-rest_eeg.muse
         file_exists = check_file_existence(participant_id, "EEG.muse")
         if not file_exists:
             print(f"Warning: task-rest_eeg.muse for {participant_id} not found!")
-        else:
-            print(f"task-rest_eeg.muse for {participant_id} exists.")
+       # else:
+           # print(f"task-rest_eeg.muse for {participant_id} exists.")
 
     if row['MuseEEG'] == 1:  # Column 7 corresponds to task-rest_eeg.edf
         file_exists = check_file_existence(participant_id, "EEG.edf")
         if not file_exists:
             print(f"Warning: task-rest_eeg.edf for {participant_id} not found!")
-        else:
-            print(f"task-rest_eeg.edf for {participant_id} exists.")
+       # else:
+           # print(f"task-rest_eeg.edf for {participant_id} exists.")
