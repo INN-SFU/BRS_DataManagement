@@ -1,5 +1,7 @@
 import csv
 import sys
+from io import StringIO
+import re 
 
 # Ensure the script has the necessary command-line arguments
 if len(sys.argv) < 3:
@@ -71,11 +73,14 @@ def format_time(time_str):
 try:
 
     # Process the input TSV and write the output
-    with open(input_file, mode="r", newline="", encoding="utf-8") as infile, \
+    with open(input_file, mode="r", newline="", encoding="utf-16") as infile, \
          open(output_file, mode="w", newline="", encoding="utf-8") as outfile:
-
-        reader = csv.reader(infile, delimiter='\t')
-        writer = csv.writer(outfile, delimiter='\t')
+             
+        lines = [line.replace('\r\n', '\n').replace('\r', '\n') for line in infile]
+        modified_file = StringIO("".join(lines))
+             
+        reader = csv.reader(modified_file, delimiter="\t")
+        writer = csv.writer(outfile, delimiter="\t")
 
         # Replace "email" header with "true_participant_ID" in the output
         output_headers = list(columns_to_extract.values())
