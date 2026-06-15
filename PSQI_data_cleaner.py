@@ -115,7 +115,7 @@ export_df = export_df[~export_df.iloc[:, 10].isin(excluded_IDs)].reset_index(dro
 print(f"After excluded participant IDs: {len(export_df)}")
 
 # Remove rows with participant ID "BRS9999"
-df = df[df.iloc[:, 10] != 'BRS9999']
+export_df = export_df[export_df.iloc[:, 10] != 'BRS9999']
 print(f"After removing BRS9999: {len(export_df)}")
 
 export_df = export_df[export_df.iloc[:, 10] != 'BRS1234']  # Apply the filtering function row-wise
