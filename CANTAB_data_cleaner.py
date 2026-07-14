@@ -100,7 +100,7 @@ df_cleaned[df_cleaned.columns[7]] = None  # Column 8 (index 7)
 print(f"Before removing excluded participant IDs: {len(df_cleaned)}")
 
 # List of IDs to be removed
-excluded_IDs = ['0197', '0307', '0376']
+excluded_IDs = ['0197', '0307', '0376', '0678']
 
 # Remove rows that match with excluded IDs
 df_cleaned = df_cleaned[~df_cleaned['new subject ID'].isin(excluded_IDs)].reset_index(drop=True)

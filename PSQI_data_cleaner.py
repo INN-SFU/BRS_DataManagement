@@ -89,9 +89,9 @@ def is_valid_participant_id(participant_id):
         return bool(re.match(r'^BRS\d{4}$', participant_id))
     return False
 
-# Load the TSV file into a pandas DataFrame with the correct encoding
+# Load the CSV file into a pandas DataFrame with the correct encoding
 file_path = '/Users/brs/Documents/psqi_downloads/desc-summary_date-250303_psqi.tsv'
-df = pd.read_csv(file_path, sep='\t', encoding='ISO-8859-1')  # Try 'ISO-8859-1' encoding
+df = pd.read_csv(file_path, encoding='ISO-8859-1')  # Try 'ISO-8859-1' encoding
 print(f"Initial number of rows: {len(df)}")
 
 fixed_df = apply_correct_id(df)
