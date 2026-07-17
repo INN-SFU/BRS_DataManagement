@@ -8,6 +8,7 @@ IDs_correction_rules = [
         "wrong_id": 'BRS0012',
         "correct_id":'BRS0011',
         "registered_date": "02/12/2024",
+        "recorded_date": "",
         "reason": "Typo in registered ID",
     },
 
@@ -15,6 +16,7 @@ IDs_correction_rules = [
         "wrong_id": 'BRS0072',
         "correct_id":'BRS0074',
         "registered_date": "27/02/2025",
+        "recorded_date": "",
         "reason": "Typo in registered ID",
     },
 
@@ -22,6 +24,7 @@ IDs_correction_rules = [
         "wrong_id": 'BRS0262',
         "correct_id":'BRS0162',
         "registered_date": "30/04/2025",
+        "recorded_date": "",
         "reason": "Typo in registered ID",
     },
 
@@ -29,6 +32,7 @@ IDs_correction_rules = [
         "wrong_id": 'BRS0533',
         "correct_id":'BRS0553',
         "registered_date": "12/12/2025",
+        "recorded_date": "",
         "reason": "Typo in registered ID",
     },
 
@@ -36,6 +40,23 @@ IDs_correction_rules = [
         "wrong_id": 'BRS0000',
         "correct_id":'BRS0575',
         "registered_date": "02/04/2026",
+        "recorded_date": "",
+        "reason": "Typo in registered ID",
+    },
+
+    {
+        "wrong_id": 'BRS0721',
+        "correct_id":'BRS0654',
+        "registered_date": "",
+        "recorded_date": "7/2/2026  12:23:44",
+        "reason": "Typo in registered ID",
+    },
+
+    {
+        "wrong_id": 'BRS0756',
+        "correct_id":'BRS0768',
+        "registered_date": "",
+        "recorded_date": "7/9/2026  12:21:20",
         "reason": "Typo in registered ID",
     }
 ]
@@ -50,7 +71,7 @@ def normalize_ids(value: str) -> str:
     )
 
 
-def apply_correct_id(df, id_col='QID1', date_col='QID2', date_format='%d/%m/%Y'):
+def apply_correct_id(df, id_col='QID1', date_col='QID2', date_format='%d/%m/%Y', Rdate_col='RecordedDate', dateT_format='%d/%m/%Y %H:%M:%S %p'):
     df = df.copy()
     
     df["raw_id"] = df[id_col].astype(str)
@@ -61,16 +82,25 @@ def apply_correct_id(df, id_col='QID1', date_col='QID2', date_format='%d/%m/%Y')
 
     df[date_col] = pd.to_datetime(df[date_col], dayfirst=True, errors="coerce").dt.normalize()
 
+    df[Rdate_col] = pd.to_datetime(df[Rdate_col], errors="coerce")
+
     for rule in IDs_correction_rules:
-        rule_date = pd.to_datetime(rule["registered_date"], dayfirst=True). normalize()
+        
+        if rule["recorded_date"] == "":
+            rule_date = pd.to_datetime(rule["registered_date"], dayfirst=True).normalize()
+            temp_date_col = date_col
+        else:
+            rule_date = pd.to_datetime(rule["recorded_date"])
+            temp_date_col = Rdate_col
 
         print(f"Wrong ID: {rule["wrong_id"]}")
         print(f"Correct ID: {rule["correct_id"]}")
         print(f"Date: {rule["registered_date"]}")
+        print(f"Recorded Date: {rule["recorded_date"]}")
 
         mask = (
             (df[id_col] == normalize_ids(rule["wrong_id"])) &
-            (df[date_col] == rule_date)
+            (df[temp_date_col] == rule_date)
         )
 
         print(df[mask])
@@ -90,8 +120,8 @@ def is_valid_participant_id(participant_id):
     return False
 
 # Load the CSV file into a pandas DataFrame with the correct encoding
-file_path = '/Users/brs/Documents/psqi_downloads/desc-summary_date-250303_psqi.tsv'
-df = pd.read_csv(file_path, encoding='ISO-8859-1')  # Try 'ISO-8859-1' encoding
+file_path = 'C:/Users/cjimenez/Documents/BRS/DataManagement/Data_Transfer/Completeness-files/psqi_downloads/desc-summary_date-20260713_psqi.csv'
+df = pd.read_csv(file_path, encoding='ISO-8859-1', skiprows=[1,2])  # Try 'ISO-8859-1' encoding
 print(f"Initial number of rows: {len(df)}")
 
 fixed_df = apply_correct_id(df)
@@ -114,6 +144,10 @@ print(f"After removing invalid participant IDs: {len(export_df)}")
 export_df = export_df[~export_df.iloc[:, 10].isin(excluded_IDs)].reset_index(drop=True)
 print(f"After excluded participant IDs: {len(export_df)}")
 
+# Remove rows with participant ID "BRS0000"
+export_df = export_df[export_df.iloc[:, 10] != 'BRS0000']
+print(f"After removing BRS0000: {len(export_df)}")
+
 # Remove rows with participant ID "BRS9999"
 export_df = export_df[export_df.iloc[:, 10] != 'BRS9999']
 print(f"After removing BRS9999: {len(export_df)}")
@@ -121,10 +155,10 @@ print(f"After removing BRS9999: {len(export_df)}")
 export_df = export_df[export_df.iloc[:, 10] != 'BRS1234']  # Apply the filtering function row-wise
 print(f"After filtering BRS1234: {len(export_df)}")
 
-export_df = export_df.drop_duplicates(subset='QID1', keep='last', inplace=False)
+clean_df = export_df.sort_values(["QID1", "Progress", "RecordedDate"], ascending=[True, True, True]).drop_duplicates("QID1", keep="last")
 
 # Save cleaned data to a new TSV file with UTF-8 encoding
 output_file = file_path.replace(".csv", ".tsv")
-export_df.to_csv(output_file, sep="\t", index=False, encoding="utf-8")
+clean_df.to_csv(output_file, sep="\t", index=False, encoding="utf-8")
 
 print("Data cleaning complete. Original file has been overwritten.")
