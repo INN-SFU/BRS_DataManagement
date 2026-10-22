@@ -1,35 +1,49 @@
 import pandas as pd
-# Read the CSV file without specifying dtype initially
-file_path = '/Users/cjimenez/Documents/BRS/DataManagement/Data_Transfer/Completeness-files/data_completeness_downloads/data_completeness_date-20260901.csv'
+import sys
 
-# List of IDs to be removed
-excluded_IDs = ['sub-BRS0197', 'sub-BRS0307', 'sub-BRS0376']
+# Ensure the script has the necessary command-line arguments
+if len(sys.argv) < 3:
+    print("Usage: python data_completeness_data_cleaner.py </path/to/downloaded_data_completeness-summary_folder> <name-of-completeness-file.csv>")
+    sys.exit(1)
 
-# Read the CSV 
-df = pd.read_csv(file_path)
+try: 
+    folder_path = sys.argv[1]
+    file_name = sys.argv[2]
 
-df.iloc[:, 2:13] = df.iloc[:, 2:13].fillna(0).astype(int)
-print(f"Before removing excluded participant IDs: {len(df)}")
+    # Read the CSV file without specifying dtype initially
+    file_path = folder_path + '/' + file_name
 
-# Define column indexes for anonymizing excluded rows
-id_idx = 0
-datetime_idx = 1
-num_columns_range = range(2, 13)
+    # List of IDs to be removed
+    excluded_IDs = ['sub-BRS0197', 'sub-BRS0307', 'sub-BRS0376']
 
-# Create mask based on ID column
-mask = df.iloc[:, id_idx].isin(excluded_IDs)
+    # Read the CSV 
+    df = pd.read_csv(file_path)
 
-# Apply -1 to selected numeric and non-datetime columns
-df.iloc[mask, num_columns_range] = -1
+    df.iloc[:, 2:13] = df.iloc[:, 2:13].fillna(0).astype(int)
+    print(f"Before removing excluded participant IDs: {len(df)}")
 
-# Apply -1 to string column
-df.iloc[mask, 13] = '-1'
+    # Define column indexes for anonymizing excluded rows
+    id_idx = 0
+    datetime_idx = 1
+    num_columns_range = range(2, 13)
 
-# Apply NaT to datetime column
-df.iloc[mask, datetime_idx] = pd.NaT
+    # Create mask based on ID column
+    mask = df.iloc[:, id_idx].isin(excluded_IDs)
 
-# Save cleaned data to a new TSV file with UTF-8 encoding
-output_file = file_path.replace(".csv", ".tsv")
-df.to_csv(output_file, sep="\t", index=False, encoding="utf-8")
+    # Apply -1 to selected numeric and non-datetime columns
+    df.iloc[mask, num_columns_range] = -1
 
-print(f"Data cleaning complete. Saved to {output_file}")
+    # Apply -1 to string column
+    df.iloc[mask, 13] = '-1'
+
+    # Apply NaT to datetime column
+    df.iloc[mask, datetime_idx] = pd.NaT
+
+    # Save cleaned data to a new TSV file with UTF-8 encoding
+    output_file = file_path.replace(".csv", ".tsv")
+    df.to_csv(output_file, sep="\t", index=False, encoding="utf-8")
+
+    print(f"Data cleaning complete. Saved to {output_file}")
+
+except Exception as e:
+    print(f"An error occurred: {e}")
