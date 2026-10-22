@@ -1,4 +1,13 @@
 import pandas as pd
+import sys
+
+# Ensure the script has the necessary command-line arguments
+if len(sys.argv) < 3:
+    print("Usage: python CANTAB_data_cleaner.py </path/to/downloaded_CANTAB-summary_folder> <name-of-cantab-file.csv>")
+    sys.exit(1)
+
+folder_path = sys.argv[1]
+file_name = sys.argv[2]
 
 IDs_correction_rules = [
 
@@ -68,49 +77,52 @@ def apply_correct_id(df, id_col='new subject ID', date_col='Visit Start (Local)'
 
     return df
 
-# Read the CSV file without specifying dtype initially
-file_path = '/Users/brs/Documents/cantab_downloads/desc-summary_date-20250612_cantab.csv'
+try:
 
-# Read the CSV to get the column names first
-df = pd.read_csv(file_path)
+    file_path = folder_path + '/' + file_name
+    # Read the CSV to get the column names first
+    df = pd.read_csv(file_path)
 
-# Specify the dtype for the Participant ID column (assuming it's column 6, index 5)
-dtype_spec = {df.columns[5]: str}  # Adjust index if the Participant ID column is different
+    # Specify the dtype for the Participant ID column (assuming it's column 6, index 5)
+    dtype_spec = {df.columns[5]: str}  # Adjust index if the Participant ID column is different
 
-# Now read the CSV again with the specified dtype for the Participant ID column
-df = pd.read_csv(file_path, dtype=dtype_spec)
+    # Now read the CSV again with the specified dtype for the Participant ID column
+    df = pd.read_csv(file_path, dtype=dtype_spec)
 
-fixed_df = apply_correct_id(df)
+    fixed_df = apply_correct_id(df)
 
-fixed_df['new subject ID'] = fixed_df['fixed_id']
+    fixed_df['new subject ID'] = fixed_df['fixed_id']
 
-fixed_df = fixed_df.drop(columns=['raw_id','fixed_id', 'id_resolution_reason'])
+    fixed_df = fixed_df.drop(columns=['raw_id','fixed_id', 'id_resolution_reason'])
 
-# Columns 19 to 23 (0-indexed, so columns 18 to 22)
-columns_to_check = fixed_df.columns[18:23]
+    # Columns 19 to 23 (0-indexed, so columns 18 to 22)
+    columns_to_check = fixed_df.columns[18:23]
 
-df_cleaned = fixed_df.copy()
-# Remove rows where all columns 19 to 23 have the value 'NOT_RUN'
-df_cleaned = fixed_df[~fixed_df[columns_to_check].eq('NOT_RUN').all(axis=1)]
+    df_cleaned = fixed_df.copy()
+    # Remove rows where all columns 19 to 23 have the value 'NOT_RUN'
+    df_cleaned = fixed_df[~fixed_df[columns_to_check].eq('NOT_RUN').all(axis=1)]
 
-# Remove all data in Columns 7 and 8 (index 6 and 7) except for the header
-df_cleaned[df_cleaned.columns[6]] = None  # Column 7 (index 6)
-df_cleaned[df_cleaned.columns[7]] = None  # Column 8 (index 7)
+    # Remove all data in Columns 7 and 8 (index 6 and 7) except for the header
+    df_cleaned[df_cleaned.columns[6]] = None  # Column 7 (index 6)
+    df_cleaned[df_cleaned.columns[7]] = None  # Column 8 (index 7)
 
-print(f"Before removing excluded participant IDs: {len(df_cleaned)}")
+    print(f"Before removing excluded participant IDs: {len(df_cleaned)}")
 
-# List of IDs to be removed
-excluded_IDs = ['0197', '0307', '0376', '0678']
+    # List of IDs to be removed
+    excluded_IDs = ['0197', '0307', '0376', '0678']
 
-# Remove rows that match with excluded IDs
-df_cleaned = df_cleaned[~df_cleaned['new subject ID'].isin(excluded_IDs)].reset_index(drop=True)
+    # Remove rows that match with excluded IDs
+    df_cleaned = df_cleaned[~df_cleaned['new subject ID'].isin(excluded_IDs)].reset_index(drop=True)
 
-print(f"After removing excluded participant IDs: {len(df_cleaned)}")
+    print(f"After removing excluded participant IDs: {len(df_cleaned)}")
 
-df_nodups = df_cleaned.drop_duplicates(subset='new subject ID', keep='last', inplace=False)
+    df_nodups = df_cleaned.drop_duplicates(subset='new subject ID', keep='last', inplace=False)
 
-# Save the cleaned data back to the same CSV file (overwrite the original)
-tsv_path = file_path.replace('.csv', '.tsv')
-df_nodups.to_csv(tsv_path, sep='\t', index=False, encoding="utf-8")
+    # Save the cleaned data back to the same CSV file (overwrite the original)
+    tsv_path = file_path.replace('.csv', '.tsv')
+    df_nodups.to_csv(tsv_path, sep='\t', index=False, encoding="utf-8")
 
-print(f"Original file has been replaced with the cleaned data: {file_path}")
+    print(f"New CANTAB tsv file has been created with the cleaned data: {tsv_path}")
+
+except Exception as e:
+    print(f"An error occurred: {e}")
