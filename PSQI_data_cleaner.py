@@ -1,6 +1,15 @@
 import pandas as pd
 import re
 from datetime import datetime
+import sys
+
+# Ensure the script has the necessary command-line arguments
+if len(sys.argv) < 3:
+    print("Usage: python PSQI_data_cleaner.py </path/to/downloaded_PSQI-summary_folder> <name-of-PSQI-file.csv>")
+    sys.exit(1)
+
+folder_path = sys.argv[1]
+file_name = sys.argv[2]
 
 IDs_correction_rules = [
 
@@ -66,6 +75,14 @@ IDs_correction_rules = [
         "registered_date": "",
         "recorded_date": "7/16/2026  11:09:53",
         "reason": "Typo in registered ID",
+    },
+
+    {
+            "wrong_id": 'BRS0675',
+            "correct_id":'BRS0875',
+            "registered_date": "",
+            "recorded_date": "09/02/2026  12:52:28",
+            "reason": "Typo in registered ID",
     }
 ]
 
@@ -127,46 +144,51 @@ def is_valid_participant_id(participant_id):
         return bool(re.match(r'^BRS\d{4}$', participant_id))
     return False
 
-# Load the CSV file into a pandas DataFrame with the correct encoding
-file_path = 'C:/Users/cjimenez/Documents/BRS/DataManagement/Data_Transfer/Completeness-files/psqi_downloads/desc-summary_date-20260713_psqi.csv'
-df = pd.read_csv(file_path, encoding='ISO-8859-1', skiprows=[1,2])  # Try 'ISO-8859-1' encoding
-print(f"Initial number of rows: {len(df)}")
+try:
 
-fixed_df = apply_correct_id(df)
+    # Load the CSV file into a pandas DataFrame with the correct encoding
+    file_path = folder_path + '/' + file_name
+    df = pd.read_csv(file_path, encoding='ISO-8859-1', skiprows=[1,2])  # Try 'ISO-8859-1' encoding
+    print(f"Initial number of rows: {len(df)}")
 
-print(fixed_df.columns.tolist())
+    fixed_df = apply_correct_id(df)
 
-export_df = fixed_df.copy()
-export_df['QID1'] = export_df['fixed_id']
+    print(fixed_df.columns.tolist())
 
-export_df = export_df.drop(columns=['raw_id','fixed_id', 'id_resolution_reason'])
+    export_df = fixed_df.copy()
+    export_df['QID1'] = export_df['fixed_id']
 
-# List of IDs to be excluded
-excluded_IDs = ['BRS0197', 'BRS0307', 'BRS0376']
+    export_df = export_df.drop(columns=['raw_id','fixed_id', 'id_resolution_reason'])
 
-# Remove rows with invalid participant IDs
-export_df = export_df[export_df.iloc[:, 10].apply(is_valid_participant_id)]  # Column 11 is index 10 in Python
-print(f"After removing invalid participant IDs: {len(export_df)}")
+    # List of IDs to be excluded
+    excluded_IDs = ['BRS0197', 'BRS0307', 'BRS0376']
 
-# Remove rows that match with excluded IDs
-export_df = export_df[~export_df.iloc[:, 10].isin(excluded_IDs)].reset_index(drop=True)
-print(f"After excluded participant IDs: {len(export_df)}")
+    # Remove rows with invalid participant IDs
+    export_df = export_df[export_df.iloc[:, 10].apply(is_valid_participant_id)]  # Column 11 is index 10 in Python
+    print(f"After removing invalid participant IDs: {len(export_df)}")
 
-# Remove rows with participant ID "BRS0000"
-export_df = export_df[export_df.iloc[:, 10] != 'BRS0000']
-print(f"After removing BRS0000: {len(export_df)}")
+    # Remove rows that match with excluded IDs
+    export_df = export_df[~export_df.iloc[:, 10].isin(excluded_IDs)].reset_index(drop=True)
+    print(f"After excluded participant IDs: {len(export_df)}")
 
-# Remove rows with participant ID "BRS9999"
-export_df = export_df[export_df.iloc[:, 10] != 'BRS9999']
-print(f"After removing BRS9999: {len(export_df)}")
+    # Remove rows with participant ID "BRS0000"
+    export_df = export_df[export_df.iloc[:, 10] != 'BRS0000']
+    print(f"After removing BRS0000: {len(export_df)}")
 
-export_df = export_df[export_df.iloc[:, 10] != 'BRS1234']  # Apply the filtering function row-wise
-print(f"After filtering BRS1234: {len(export_df)}")
+    # Remove rows with participant ID "BRS9999"
+    export_df = export_df[export_df.iloc[:, 10] != 'BRS9999']
+    print(f"After removing BRS9999: {len(export_df)}")
 
-clean_df = export_df.sort_values(["QID1", "Progress", "RecordedDate"], ascending=[True, True, True]).drop_duplicates("QID1", keep="last")
+    export_df = export_df[export_df.iloc[:, 10] != 'BRS1234']  # Apply the filtering function row-wise
+    print(f"After filtering BRS1234: {len(export_df)}")
 
-# Save cleaned data to a new TSV file with UTF-8 encoding
-output_file = file_path.replace(".csv", ".tsv")
-clean_df.to_csv(output_file, sep="\t", index=False, encoding="utf-8")
+    clean_df = export_df.sort_values(["QID1", "Progress", "RecordedDate"], ascending=[True, True, True]).drop_duplicates("QID1", keep="last")
 
-print("Data cleaning complete. Original file has been overwritten.")
+    # Save cleaned data to a new TSV file with UTF-8 encoding
+    output_file = file_path.replace(".csv", ".tsv")
+    clean_df.to_csv(output_file, sep="\t", index=False, encoding="utf-8")
+
+    print(f"New PSQI tsv file has been created with the cleaned data: {output_file}")
+
+except Exception as e:
+    print(f"An error occurred: {e}")
