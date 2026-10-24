@@ -116,7 +116,7 @@ try:
 
             writer.writerow(filtered_row)
 
-    print(f"Deanonymized TSV saved as {output_file}")
+    print(f"Deanonymized TSV saved as {participant_id}_sleepDiary.tsv in {output_dir} \n")
 
 except Exception as e:
     print(f"An error occurred: {e}")
