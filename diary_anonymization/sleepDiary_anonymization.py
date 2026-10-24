@@ -1,16 +1,18 @@
 import csv
 import sys
 from io import StringIO
-import re 
+import re
+from pathlib import Path
 
 # Ensure the script has the necessary command-line arguments
-if len(sys.argv) < 3:
-    print("Usage: python /path/to/sleepDiary_anonymization.py </path/to/input_non-anonymized_sleep_diary_tsv> <participant_ID>")
+if len(sys.argv) < 4:
+    print("Usage: python /path/to/sleepDiary_anonymization.py </path/to/input_non-anonymized_sleep_diary_tsv> </path/to/output_anonymized_sleep_diary_tsv> <participant_ID>")
     sys.exit(1)
 
 input_file = sys.argv[1]
-participant_id = sys.argv[2]
-output_file = f"{participant_id}_sleepDiary.tsv"
+output_dir = Path(sys.argv[2])
+participant_id = sys.argv[3]
+output_file = output_dir / f"{participant_id}_sleepDiary.tsv"
 
 # Column indices to extract from the input TSV and their corresponding headers
 columns_to_extract = {
