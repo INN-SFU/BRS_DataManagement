@@ -78,11 +78,11 @@ IDs_correction_rules = [
     },
 
     {
-            "wrong_id": 'BRS0675',
-            "correct_id":'BRS0875',
-            "registered_date": "",
-            "recorded_date": "09/02/2026  12:52:28",
-            "reason": "Typo in registered ID",
+        "wrong_id": 'BRS0675',
+        "correct_id":'BRS0875',
+        "registered_date": "",
+        "recorded_date": "09/02/2026  12:52:28",
+        "reason": "Typo in registered ID",
     }
 ]
 
